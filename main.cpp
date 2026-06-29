@@ -1,69 +1,75 @@
 #include <iostream>
 #include <windows.h>
 
-int calculate(int first, int second, char op) {
-    int result = 0;
-    if (op == '+') {
-        result = first + second;
-    } else if (op == '-') {
-        result = first - second;
-    } else if (op == '*') {
-        result = first * second;
-    } else if (op == '/') {
-        if (second != 0) {
-            result = first / second;
-        } else {
-            std::cout << "Помилка: ділення на нуль!\n";
+int calculate(char op, int first, int second) {
+    if (op == '/') {
+        if (!second) {
+            std::cout << "You cannot divide by 0\n";
+            return 0;
         }
+        return first / second;
     }
-    return result;
+    if (op == '+') return first + second;
+    if (op == '-') return first - second;
+    if (op == '*') return first * second;
+    return 0;
 }
 
-float calculate(float first, float second, char op) {
-    float result = 0.0f;
-    if (op == '+') {
-        result = first + second;
-    } else if (op == '-') {
-        result = first - second;
-    } else if (op == '*') {
-        result = first * second;
-    } else if (op == '/') {
-        if (second != 0.0f) {
-            result = first / second;
-        } else {
-            std::cout << "Помилка: ділення на нуль!\n";
+float calculate(char op, float first, float second) {
+    if (op == '/') {
+        if (second == 0.0f) {
+            std::cout << "You cannot divide by 0\n";
+            return 0.0f;
         }
+        return first / second;
     }
-    return result;
+    if (op == '+') return first + second;
+    if (op == '-') return first - second;
+    if (op == '*') return first * second;
+    return 0.0f;
+}
+
+int calculate(const char* op, const int* first, const int* second) {
+    if (op && first && second) {
+        return calculate(*op, *first, *second);
+    }
+    return 0;
+}
+
+int& processFirstBy(int& first, const int by, const char op) {
+    first = calculate(op, first, by);
+    return first;
 }
 
 int main() {
     SetConsoleCP(65001);
     SetConsoleOutputCP(65001);
 
-    int num1 = 0;
-    int num2 = 0;
-    char op = 0;
+    int* firstPtr = new int;
+    int* secondPtr = new int;
+    char* opPtr = new char;
 
-    std::cout << "Enter the first number: ";
-    std::cin >> num1;
+    std::cout << "Enter first number: ";
+    std::cin >> *firstPtr;
 
-    std::cout << "Enter the operation (+, -, *, /): ";
-    std::cin >> op;
+    std::cout << "Enter op: ";
+    std::cin >> *opPtr;
 
-    std::cout << "Enter the second number: ";
-    std::cin >> num2;
+    std::cout << "Enter second number: ";
+    std::cin >> *secondPtr;
 
-    int userResult = calculate(num1, num2, op);
-    std::cout << "Result: " << userResult << "\n\n";
+    int result = calculate(opPtr, firstPtr, secondPtr);
+    std::cout << "Result: " << result << "\n";
 
-    std::cout << "--- Перевірка перевантаження функцій (Hardcoded) ---\n";
-    
-    float resFloat = calculate(1.2f, 3.4f, '+');
-    std::cout << "calculate(1.2f, 3.4f, '+') = " << resFloat << "\n";
+    delete firstPtr;
+    delete secondPtr;
+    delete opPtr;
+    firstPtr = nullptr;
+    secondPtr = nullptr;
+    opPtr = nullptr;
 
-    int resInt = calculate(1, 2, '/');
-    std::cout << "calculate(1, 2, '/') = " << resInt << "\n";
+    int f = 10;
+    processFirstBy(f, 5, '+');
 
     return 0;
 }
