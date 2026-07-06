@@ -1,17 +1,34 @@
 #include <iostream>
-#include "flip.h"
 
 using namespace std;
 
+bool findChar(const char* str, const char element)
+{
+    int i = 0;
+    while (str[i] != '\0')
+    {
+        if (str[i] == element)
+        {
+            return true;
+        }
+        ++i;
+    }
+    return false;
+}
+
 int main()
 {
-    char str[] = "123456";
+    const char text[] = "hello";
+    char searchElement = 'l';
 
-    cout << "Original: " << str << endl;
-
-    flipArray(str);
-
-    cout << "Flipped: " << str << endl;
+    if (findChar(text, searchElement))
+    {
+        cout << "Character '" << searchElement << "' found in string." << endl;
+    }
+    else
+    {
+        cout << "Character '" << searchElement << "' not found in string." << endl;
+    }
 
     return 0;
 }
