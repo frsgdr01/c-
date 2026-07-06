@@ -2,33 +2,46 @@
 
 using namespace std;
 
-bool findChar(const char* str, const char element)
+int memory = 0;
+
+void setStartValue(int value)
 {
-    int i = 0;
-    while (str[i] != '\0')
+    memory = value;
+}
+
+int calculate(char operation, int value)
+{
+    switch (operation)
     {
-        if (str[i] == element)
-        {
-            return true;
-        }
-        ++i;
+        case '+':
+            memory += value;
+            break;
+        case '-':
+            memory -= value;
+            break;
+        case '*':
+            memory *= value;
+            break;
+        case '/':
+            if (value != 0)
+            {
+                memory /= value;
+            }
+            break;
+        default:
+            break;
     }
-    return false;
+    return memory;
 }
 
 int main()
 {
-    const char text[] = "hello";
-    char searchElement = 'l';
+    setStartValue(10);
 
-    if (findChar(text, searchElement))
-    {
-        cout << "Character '" << searchElement << "' found in string." << endl;
-    }
-    else
-    {
-        cout << "Character '" << searchElement << "' not found in string." << endl;
-    }
+    cout << calculate('+', 5) << endl;
+    cout << calculate('*', 2) << endl;
+    cout << calculate('-', 8) << endl;
+    cout << calculate('/', 2) << endl;
 
     return 0;
 }
