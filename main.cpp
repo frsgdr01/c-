@@ -1,80 +1,82 @@
 #include <iostream>
 
-class vector {
-private:
-    unsigned int size = 0;
-    int* dinamycArray = nullptr;
+using namespace std;
 
+class Calculator
+{
 public:
-    vector(int sizeOffArray) {
-        size = sizeOffArray;
-        dinamycArray = new int[size]{0};
+    Calculator()
+    {
+        memory = 0;
     }
 
-    ~vector() {
-        delete[] dinamycArray;
+    Calculator(int startValue)
+    {
+        memory = startValue;
     }
 
-    void resize(int newSize) {
-        if (newSize < 0) return;
+    void setStartValue(int start)
+    {
+        memory = start;
+    }
 
-        int* newArray = new int[newSize]{0};
-        int elementsToCopy = (newSize < size) ? newSize : size;
-
-        for (int i = 0; i < elementsToCopy; ++i) {
-            newArray[i] = dinamycArray[i];
+    int calculate(char op, int right)
+    {
+        switch (op)
+        {
+        case '+':
+            memory += right;
+            break;
+        case '-':
+            memory -= right;
+            break;
+        case '*':
+            memory *= right;
+            break;
+        case '/':
+            if (right != 0)
+                memory /= right;
+            break;
         }
-
-        delete[] dinamycArray;
-        dinamycArray = newArray;
-        size = newSize;
+        return memory;
     }
 
-    void set(int index, int newValue) {
-        if (index >= 0 && index < static_cast<int>(size)) {
-            dinamycArray[index] = newValue;
+    int calculate(int left, char op, int right)
+    {
+        switch (op)
+        {
+        case '+':
+            memory = left + right;
+            break;
+        case '-':
+            memory = left - right;
+            break;
+        case '*':
+            memory = left * right;
+            break;
+        case '/':
+            if (right != 0)
+                memory = left / right;
+            else
+                memory = 0;
+            break;
         }
+        return memory;
     }
 
-    int get(int index) const {
-        if (index >= 0 && index < static_cast<int>(size)) {
-            return dinamycArray[index];
-        }
-        return 0;
-    }
-
-    unsigned int getSize() const {
-        return size;
-    }
+private:
+    int memory;
 };
 
-int main() {
-    vector myVector(5);
+int main()
+{
+    Calculator calc1 = 10;
+    cout << calc1.calculate('-', 10) << endl;
 
-    for (int i = 0; i < 5; ++i) {
-        myVector.set(i, (i + 1) * 10);
-    }
+    cout << "---" << endl;
 
-    for (int i = 0; i < 5; ++i) {
-        std::cout << myVector.get(i) << " ";
-    }
-    std::cout << "\n";
-
-    myVector.resize(8);
-    myVector.set(5, 60);
-    myVector.set(6, 70);
-    myVector.set(7, 80);
-
-    for (int i = 0; i < 8; ++i) {
-        std::cout << myVector.get(i) << " ";
-    }
-    std::cout << "\n";
-
-    myVector.resize(3);
-    for (int i = 0; i < 3; ++i) {
-        std::cout << myVector.get(i) << " ";
-    }
-    std::cout << "\n";
+    Calculator calc2;
+    cout << calc2.calculate(50, '/', 5) << endl;
 
     return 0;
 }
