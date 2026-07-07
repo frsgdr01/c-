@@ -1,79 +1,41 @@
 #include <iostream>
+#include <cstring>
 
 using namespace std;
 
-class Calculator
-{
-public:
-    void setStartValue(int start)
-    {
-        memory = start;
-    }
+bool isPalindrome(const char* str) {
+    int start = 0;
+    int end = strlen(str) - 1;
 
-    int calculate(int right, char op)
-    {
-        switch (op)
-        {
-        case '+':
-            memory += right;
-            break;
-        case '-':
-            memory -= right;
-            break;
-        case '*':
-            memory *= right;
-            break;
-        case '/':
-            if (right != 0)
-                memory /= right;
-            break;
+    while (start < end) {
+        if (str[start] != str[end]) {
+            return false;
         }
-        return memory;
+        start++;
+        end--;
+    }
+    return true;
+}
+
+int main() {
+    int size = 0;
+    cout << "Enter max text size: ";
+    cin >> size;
+
+    cin.ignore();
+
+    char* str = new char[size + 1];
+
+    cout << "Enter text: ";
+    cin.getline(str, size + 1);
+
+    if (isPalindrome(str)) {
+        cout << "Palindrome" << endl;
+    } else {
+        cout << "Not palindrome" << endl;
     }
 
-    int calculate(int left, int right, char op)
-    {
-        switch (op)
-        {
-        case '+':
-            memory = left + right;
-            break;
-        case '-':
-            memory = left - right;
-            break;
-        case '*':
-            memory = left * right;
-            break;
-        case '/':
-            if (right != 0)
-                memory = left / right;
-            else
-                memory = 0;
-            break;
-        }
-        return memory;
-    }
-
-private:
-    int memory = 0;
-};
-
-int main()
-{
-    Calculator calc1;
-
-    calc1.setStartValue(10);
-
-    cout << calc1.calculate(5, '+') << endl;
-    cout << calc1.calculate(2, '*') << endl;
-    cout << calc1.calculate(8, '-') << endl;
-    cout << calc1.calculate(2, '/') << endl;
-
-    cout << "---" << endl;
-
-    Calculator calc2;
-
-    cout << calc2.calculate(50, 5, '/') << endl;
+    delete[] str;
 
     return 0;
 }
