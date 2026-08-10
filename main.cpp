@@ -1,98 +1,169 @@
 #include <iostream>
 #include <string>
-#include <windows.h>
+#include <vector>
 
-class ColorManager {
-private:
-    int favoriteColorsMask = 0;
-    const std::string colorNames[13] = {
-        "червоний", "синій", "зелений", "жовтий", "фіолетовий", 
-        "блакитний", "білий", "чорний", "помаранчевий", "бежевий", 
-        "рожевий", "салатовий", "сірий"
-    };
-
+class Delivery
+{
 public:
-    void printColorList() {
-        std::cout << "\n";
-        for (int i = 0; i < 13; ++i) {
-            std::cout << i << ". " << colorNames[i] << "\n";
-        }
+    Delivery(const std::string& address, double weight)
+        : address_(address),
+          weight_(weight)
+    {
     }
 
-    void addColor(int index) {
-        if (index >= 0 && index <= 12) {
-            int i = 1;
-            i = i << index;
-            favoriteColorsMask = favoriteColorsMask | i;
-            std::cout << "додано\n";
-        } else {
-            std::cout << "невірний індекс\n";
-        }
-    }
+    virtual ~Delivery() = default;
 
-    void removeColor(int index) {
-        if (index < 0 || index > 12) {
-            std::cout << "невірний індекс\n";
+    void process() const
+    {
+        std::cout << "\nТип доставки: "
+                  << getType()
+                  << '\n';
+
+        if (!validate())
+        {
+            std::cout << "Некоректні дані замовлення.\n";
             return;
         }
-        int i = 1;
-        i = i << index;
-        i = ~i;
-        favoriteColorsMask = favoriteColorsMask & i;
-        std::cout << "видалено\n";
+
+        std::cout << "Адреса: " << address_ << '\n';
+        std::cout << "Вага: " << weight_ << " кг\n";
+        std::cout << "Вартість: "
+                  << calculatePrice()
+                  << " грн\n";
+        std::cout << "Термін: "
+                  << getDeliveryDays()
+                  << " днів\n";
     }
 
-    void showFavorites() {
-        bool hasFavorites = false;
-        for (int index = 0; index < 13; ++index) {
-            int i = 1;
-            i = i << index;
-            if ((favoriteColorsMask & i) > 0) {
-                std::cout << "- " << colorNames[index] << "\n";
-                hasFavorites = true;
-            }
-        }
-        if (!hasFavorites) {
-            std::cout << "порожньо\n";
-        }
+    virtual std::string getType() const = 0;
+
+protected:
+    virtual bool validate() const
+    {
+        return !address_.empty() && weight_ > 0;
+    }
+
+    virtual double calculatePrice() const = 0;
+    virtual int getDeliveryDays() const = 0;
+
+    double getWeight() const
+    {
+        return weight_;
+    }
+
+private:
+    std::string address_;
+    double weight_;
+};
+
+class CourierDelivery : public Delivery
+{
+public:
+    CourierDelivery(const std::string& address, double weight)
+        : Delivery(address, weight)
+    {
+    }
+
+    std::string getType() const override
+    {
+        return "Кур'єрська доставка";
+    }
+
+protected:
+    bool validate() const override
+    {
+        return Delivery::validate() && getWeight() <= 30;
+    }
+
+    double calculatePrice() const override
+    {
+        return 100 + getWeight() * 20;
+    }
+
+    int getDeliveryDays() const override
+    {
+        return 1;
     }
 };
 
-int main() {
-    SetConsoleCP(65001);
-    SetConsoleOutputCP(65001);
-
-    ColorManager manager;
-
-    while (true) {
-        std::cout << "\n1. add favorite colour\n2. remove favorite\n3. show favorites\n4. exit\n-: ";
-        int input = 0;
-        std::cin >> input;
-
-        if (4 == input) {
-            return 0;
-        }
-
-        if (1 == input) {
-            manager.printColorList();
-            std::cout << "-: ";
-            int index = 0;
-            std::cin >> index;
-            manager.addColor(index);
-        }
-        else if (2 == input) {
-            manager.printColorList();
-            std::cout << "-: ";
-            int index = 0;
-            std::cin >> index;
-            manager.removeColor(index);
-        }
-        else if (3 == input) {
-            manager.showFavorites();
-        }
-        else {
-            std::cout << "некоректний ввід спробуйте ще раз\n";
-        }
+class PostOfficeDelivery : public Delivery
+{
+public:
+    PostOfficeDelivery(const std::string& address, double weight)
+        : Delivery(address, weight)
+    {
     }
+
+    std::string getType() const override
+    {
+        return "Доставка у відділення";
+    }
+
+protected:
+    bool validate() const override
+    {
+        return Delivery::validate() && getWeight() <= 100;
+    }
+
+    double calculatePrice() const override
+    {
+        return 50 + getWeight() * 10;
+    }
+
+    int getDeliveryDays() const override
+    {
+        return 3;
+    }
+};
+
+class ParcelLockerDelivery : public Delivery
+{
+public:
+    ParcelLockerDelivery(const std::string& address, double weight)
+        : Delivery(address, weight)
+    {
+    }
+
+    std::string getType() const override
+    {
+        return "Доставка у поштомат";
+    }
+
+protected:
+    bool validate() const override
+    {
+        return Delivery::validate() && getWeight() <= 20;
+    }
+
+    double calculatePrice() const override
+    {
+        return 70;
+    }
+
+    int getDeliveryDays() const override
+    {
+        return 2;
+    }
+};
+
+int main()
+{
+    CourierDelivery courier("вул. Лісова, 10", 5.0);
+    PostOfficeDelivery postOffice("Відділення №15", 25.0);
+    ParcelLockerDelivery parcelLocker("Поштомат №2034", 3.5);
+    CourierDelivery invalidCourier("вул. Центральна, 7", 50.0);
+
+    std::vector<const Delivery*> deliveries{
+        &courier,
+        &postOffice,
+        &parcelLocker,
+        &invalidCourier
+    };
+
+    for (const Delivery* delivery : deliveries)
+    {
+        delivery->process();
+    }
+
     return 0;
 }
