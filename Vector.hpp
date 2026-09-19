@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <stdexcept>
 #include <utility>
+#include <iterator>
 
 template <typename T>
 class Vector {
@@ -24,6 +25,150 @@ private:
     }
 
 public:
+    class Iterator {
+    private:
+        T* ptr_;
+
+    public:
+        using iterator_category = std::random_access_iterator_tag;
+        using value_type        = T;
+        using difference_type   = std::ptrdiff_t;
+        using pointer           = T*;
+        using reference         = T&;
+
+        Iterator(T* ptr = nullptr) : ptr_(ptr) {}
+
+        reference operator*() const { return *ptr_; }
+        pointer operator->() const { return ptr_; }
+
+        Iterator& operator++() {
+            ++ptr_;
+            return *this;
+        }
+
+        Iterator operator++(int) {
+            Iterator temp = *this;
+            ++ptr_;
+            return temp;
+        }
+
+        Iterator& operator--() {
+            --ptr_;
+            return *this;
+        }
+
+        Iterator operator--(int) {
+            Iterator temp = *this;
+            --ptr_;
+            return temp;
+        }
+
+        Iterator& operator+=(difference_type n) {
+            ptr_ += n;
+            return *this;
+        }
+
+        Iterator& operator-=(difference_type n) {
+            ptr_ -= n;
+            return *this;
+        }
+
+        Iterator operator+(difference_type n) const {
+            return Iterator(ptr_ + n);
+        }
+
+        Iterator operator-(difference_type n) const {
+            return Iterator(ptr_ - n);
+        }
+
+        difference_type operator-(const Iterator& other) const {
+            return ptr_ - other.ptr_;
+        }
+
+        reference operator[](difference_type n) const {
+            return ptr_[n];
+        }
+
+        bool operator==(const Iterator& other) const { return ptr_ == other.ptr_; }
+        bool operator!=(const Iterator& other) const { return ptr_ != other.ptr_; }
+        bool operator<(const Iterator& other) const  { return ptr_ < other.ptr_; }
+        bool operator>(const Iterator& other) const  { return ptr_ > other.ptr_; }
+        bool operator<=(const Iterator& other) const { return ptr_ <= other.ptr_; }
+        bool operator>=(const Iterator& other) const { return ptr_ >= other.ptr_; }
+    };
+
+    class ConstIterator {
+    private:
+        const T* ptr_;
+
+    public:
+        using iterator_category = std::random_access_iterator_tag;
+        using value_type        = T;
+        using difference_type   = std::ptrdiff_t;
+        using pointer           = const T*;
+        using reference         = const T&;
+
+        ConstIterator(const T* ptr = nullptr) : ptr_(ptr) {}
+
+        reference operator*() const { return *ptr_; }
+        pointer operator->() const { return ptr_; }
+
+        ConstIterator& operator++() {
+            ++ptr_;
+            return *this;
+        }
+
+        ConstIterator operator++(int) {
+            ConstIterator temp = *this;
+            ++ptr_;
+            return temp;
+        }
+
+        ConstIterator& operator--() {
+            --ptr_;
+            return *this;
+        }
+
+        ConstIterator operator--(int) {
+            ConstIterator temp = *this;
+            --ptr_;
+            return temp;
+        }
+
+        ConstIterator& operator+=(difference_type n) {
+            ptr_ += n;
+            return *this;
+        }
+
+        ConstIterator& operator-=(difference_type n) {
+            ptr_ -= n;
+            return *this;
+        }
+
+        ConstIterator operator+(difference_type n) const {
+            return ConstIterator(ptr_ + n);
+        }
+
+        ConstIterator operator-(difference_type n) const {
+            return ConstIterator(ptr_ - n);
+        }
+
+        difference_type operator-(const ConstIterator& other) const {
+            return ptr_ - other.ptr_;
+        }
+
+        reference operator[](difference_type n) const {
+            return ptr_[n];
+        }
+
+        bool operator==(const ConstIterator& other) const { return ptr_ == other.ptr_; }
+        bool operator!=(const ConstIterator& other) const { return ptr_ != other.ptr_; }
+        bool operator<(const ConstIterator& other) const  { return ptr_ < other.ptr_; }
+        bool operator>(const ConstIterator& other) const  { return ptr_ > other.ptr_; }
+        bool operator<=(const ConstIterator& other) const { return ptr_ <= other.ptr_; }
+        bool operator>=(const ConstIterator& other) const { return ptr_ >= other.ptr_; }
+    };
+
     Vector() : data_(nullptr), size_(0), capacity_(0) {}
 
     explicit Vector(size_t initial_size) 
@@ -59,6 +204,15 @@ public:
         }
         return *this;
     }
+
+    Iterator begin() { return Iterator(data_); }
+    Iterator end()   { return Iterator(data_ + size_); }
+
+    ConstIterator begin() const { return ConstIterator(data_); }
+    ConstIterator end()   const { return ConstIterator(data_ + size_); }
+
+    ConstIterator cbegin() const { return ConstIterator(data_); }
+    ConstIterator cend()   const { return ConstIterator(data_ + size_); }
 
     void push_back(const T& value) {
         if (size_ >= capacity_) {
@@ -112,6 +266,37 @@ public:
     bool operator!=(const Vector& other) const {
         return !(*this == other);
     }
+
+    friend std::ostream& operator<<(std::ostream& out, const Vector<T>& vector) {
+        out << "[ ";
+        for (size_t i = 0; i < vector.size_; ++i) {
+            out << vector.data_[i] << (i + 1 < vector.size_ ? ", " : " ");
+        }
+        out << "]";
+        return out;
+    }
+
+    friend std::istream& operator>>(std::istream& in, Vector<T>& vector) {
+        T value;
+        if (in >> value) {
+            vector.push_back(value);
+        }
+        return in;
+    }
 };
+
+template <typename T>
+void insertion_sort(Vector<T>& arr) {
+    for (size_t i = 1; i < arr.size(); ++i) {
+        T value = arr[i];
+        int j = static_cast<int>(i) - 1;
+
+        while (j >= 0 && arr[j] > value) {
+            arr[j + 1] = arr[j];
+            --j;
+        }
+        arr[j + 1] = value;
+    }
+}
 
 #endif
